@@ -1,4 +1,4 @@
-all: dav1d.wasm
+all: dav1d.wasm dav1d.simd.wasm
 
 patch:
 	patch -d dav1d -p1 <dav1d.patch
@@ -19,6 +19,10 @@ build/dist/lib64/libdav1d.a:
 dav1d.wasm: build/dist/lib64/libdav1d.a dav1d.c
 	emcc $^ -DNDEBUG -O3 --llvm-lto 3 -Ibuild/dist/include -o $@ \
 		-s TOTAL_MEMORY=67108864 -s MALLOC=emmalloc
+
+dav1d.simd.wasm: build/dist/lib64/libdav1d.a dav1d.c
+	emcc $^ -DNDEBUG -O3 --llvm-lto 3 -Ibuild/dist/include -o $@.simd \
+		-s TOTAL_MEMORY=67108864 -s MALLOC=emmalloc -msimd128
 
 .PHONY: test
 test: dav1d.c
